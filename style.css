@@ -1,0 +1,79 @@
+/* 自定义样式 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section {
+    flex: 1;
+}
+
+.table {
+    width: 100%;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.borrow-btn {
+    transition: all 0.2s ease;
+}
+
+.borrow-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* 模态框动画 */
+.modal {
+    transition: opacity 0.25s ease;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+}
+
+/* 加载状态 */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* 空状态样式 */
+#noBooksMessage {
+    padding: 2rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+/* 表单样式增强 */
+.field .help {
+    margin-top: 0.25rem;
+}
+
+/* 按钮样式增强 */
+.button {
+    transition: all 0.2s ease;
+}
+
+/* 导航栏激活状态 */
+.navbar-item.is-active {
+    background-color: rgba(255,255,255,0.1) !important;
+}

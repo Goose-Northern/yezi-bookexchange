@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书交换平台</title>
+    <link rel="stylesheet" href="statement_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href=" ">
+                <strong>🍃 叶子图书交换平台(小组作业试行版)</strong>
+            </a >
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item is-active" href="index.html">
+                    首页
+                </a >
+                <a class="navbar-item" href="add-book.html">
+                    添加图书
+                </a >
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <section class="section">
+        <div class="container">
+            <h1 class="title">图书交换平台</h1>
+            <p class="subtitle">浏览和借阅共享图书</p >
+
+            <!-- 搜索区域 -->
+            <div class="box">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" id="searchInput" placeholder="输入书名或作者或上传者进行搜索...">
+                    </div>
+                    <div class="control">
+                        <button class="button is-info" id="searchButton">
+                            搜索
+                        </button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-light" id="showAllButton">
+                            显示全部
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图书表格 -->
+            <div class="box">
+                <h2 class="title is-4">图书列表</h2>
+                <div class="table-container">
+                    <table class="table is-fullwidth is-striped is-hoverable">
+                        <thead>
+                            <tr>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>上传者</th>
+                                <th>联系方式</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <!-- 图书数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                    <div id="noBooksMessage" class="has-text-centered" style="display: none;">
+                        <p class="has-text-grey">暂无图书，请点击上方"添加图书"添加第一本书</p >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 借用确认模态框 -->
+    <div class="modal" id="borrowModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">确认借用</p >
+                <button class="delete" aria-label="close" id="closeModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <p>您确定要借用这本书吗？点击确定此行表格会被删除。</p >
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" id="confirmBorrow">确定</button>
+                <button class="button" id="cancelBorrow">取消</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示所有图书
+            displayAllBooks();
+            
+            // 搜索按钮事件
+            document.getElementById('searchButton').addEventListener('click', function() {
+                const keyword = document.getElementById('searchInput').value.trim();
+                if (keyword) {
+                    searchBooks(keyword);
+                } else {
+                    displayAllBooks();
+                }
+            });
+            
+            // 显示全部按钮事件
+            document.getElementById('showAllButton').addEventListener('click', function() {
+                document.getElementById('searchInput').value = '';
+                displayAllBooks();
+            });
+            
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('searchButton').click();
+                }
+            });
+            
+            // 模态框关闭事件
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('cancelBorrow').addEventListener('click', closeModal);
+            
+            // 确认借用事件
+            document.getElementById('confirmBorrow').addEventListener('click', function() {
+                const bookId = this.getAttribute('data-book-id');
+                if (bookId) {
+                    deleteBook(bookId);
+                    closeModal();
+                }
+            });
+        });
+        
+        /**
+         * 显示所有图书
+         */
+        function displayAllBooks() {
+            const books = BookManager.getAllBooks();
+            renderBooksTable(books);
+        }
+        
+        /**
+         * 搜索图书
+         * @param {string} keyword - 搜索关键词
+         */
+        function searchBooks(keyword) {
+            const books = BookManager.searchBooks(keyword);
+            renderBooksTable(books);
+        }
+        
+        /**
+         * 渲染图书表格
+         * @param {Array} books - 图书数组
+         */
+        function renderBooksTable(books) {
+            const tbody = document.getElementById('booksTableBody');
+            const noBooksMessage = document.getElementById('noBooksMessage');
+            
+            if (books.length === 0) {
+                tbody.innerHTML = '';
+                noBooksMessage.style.display = 'block';
+                return;
+            }
+            
+            noBooksMessage.style.display = 'none';
+            
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.uploader}</td>
+                    <td>${book.contact}</td>
+                    <td>
+                        <button class="button is-small is-danger borrow-btn" data-book-id="${book.id}">
+                            借用
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // 为所有借用按钮添加事件监听器
+            document.querySelectorAll('.borrow-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = this.getAttribute('data-book-id');
+                    openBorrowModal(bookId);
+                });
+            });
+        }
+        
+        /**
+         * 打开借用确认模态框
+         * @param {string} bookId - 图书ID
+         */
+        function openBorrowModal(bookId) {
+            document.getElementById('borrowModal').classList.add('is-active');
+            document.getElementById('confirmBorrow').setAttribute('data-book-id', bookId);
+        }
+        
+        /**
+         * 关闭模态框
+         */
+        function closeModal() {
+            document.getElementById('borrowModal').classList.remove('is-active');
+        }
+        
+        /**
+         * 删除图书（借用）
+         * @param {string} bookId - 图书ID
+         */
+        function deleteBook(bookId) {
+            if (BookManager.deleteBook(bookId)) {
+                // 刷新表格
+                const keyword = document.getElementById('searchInput').value.trim();
+                if (keyword) {
+                    searchBooks(keyword);
+                } else {
+                    displayAllBooks();
+                }
+            } else {
+                alert('删除失败，请重试');
+            }
+        }
+    </script><hr>
+    <div class="bok-box">
+        <div class="bok-end-one">关于🍃叶子图书交换平台</div>
+        <div class="bok-end-two">
+            <p>
+                本平台致力于促进图书资源的共享与流通，让知识在交换中产生更大的价值。
+                我们相信每一本书都有其独特的魅力，通过交换可以让更多人受益。
+            </p>
+        </div>
+        <div class="bok-end-three">
+            <p><strong>平台特色：</strong></p >
+            <ul>
+                <li>免费发布和借阅图书</li>
+                <li>简单易用的搜索功能</li>
+                <li>安全可靠的联系方式保护</li>
+                <li>促进社区知识共享</li>
+            </ul>
+        </div>
+        <div class="bok-end-four"><p>🍃叶子图书交换平台 - 让知识流动起来</p ></div>
+        <div class="bok-end-statement">
+            <h3 id="statement_title" style="font-size: 0.5rem;">声明：</h3>
+            <p id="statement_text" style="font-size: 0.5rem">
+                此网页由工设243杨博研粗略制作;
+                感谢小组成员(排名不分先后)工设243王德洺、工设243刘宇钊、建筑241姚贵晟、建筑243马硕、城规242徐伟宸鼎力支持;<br>
+                特别感谢 Deepseek 对 localstorage 部分等代码提供支持与答疑和豆包对 bulma 框架应用的教学与答疑,以及两位ai对代码报错问题的答疑。
+                拙作初成,尚显稚嫩,不足甚多,盼君斧正,不胜感激。<br>
+                制作者邮箱:yang03107696@outlook.com,欢迎反馈问题。
+            </p>
+        </div>
+    </div>
+    
+</body>
+</html>

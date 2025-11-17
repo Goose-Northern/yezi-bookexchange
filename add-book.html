@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加图书 - 图书交换平台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href=" ">
+                <strong>🍃 叶子图书交换平台(小组作业试行版)</strong>
+            </a >
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="index.html">
+                    首页
+                </a >
+                <a class="navbar-item is-active" href="add-book.html">
+                    添加图书
+                </a >
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <h1 class="title">添加新图书</h1>
+                    
+                    <!-- 添加图书表单 -->
+                    <div class="box">
+                        <form id="addBookForm">
+                            <div class="field">
+                                <label class="label">完整书名 *</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="bookTitle" placeholder="请输入完整书名" required>
+                                </div>
+                            </div>
+                            
+                            <div class="field">
+                                <label class="label">作者 *</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="bookAuthor" placeholder="请输入作者姓名" required>
+                                </div>
+                            </div>
+                            
+                            <div class="field">
+                                <label class="label">上传人姓名 *</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="uploaderName" placeholder="请输入您的姓名" required>
+                                </div>
+                            </div>
+                            
+                            <div class="field">
+                                <label class="label">联系方式 *</label>
+                                <div class="control">
+                                    <input class="input" type="text" id="contactInfo" placeholder="请输入您的联系方式" required>
+                                </div>
+                                <p class="help">可以是邮箱、电话或其他联系方式</p >
+                            </div>
+                            
+                            <div class="field is-grouped">
+                                <div class="control">
+                                    <button type="submit" class="button is-primary">添加图书</button>
+                                </div>
+                                <div class="control">
+                                    返回首页
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 成功提示模态框 -->
+    <div class="modal" id="successModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">添加成功</p >
+                <button class="delete" aria-label="close" id="closeSuccessModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <p>图书已成功添加到平台！</p >
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-success" id="goHome">返回首页</button>
+                <button class="button" id="addAnother">继续添加</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单提交事件
+            document.getElementById('addBookForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addNewBook();
+            });
+            
+            // 成功模态框事件
+            document.getElementById('closeSuccessModal').addEventListener('click', closeSuccessModal);
+            document.getElementById('goHome').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            document.getElementById('addAnother').addEventListener('click', function() {
+                closeSuccessModal();
+                document.getElementById('addBookForm').reset();
+            });
+        });
+        
+        /**
+         * 添加新图书
+         */
+        function addNewBook() {
+            const book = {
+                title: document.getElementById('bookTitle').value.trim(),
+                author: document.getElementById('bookAuthor').value.trim(),
+                uploader: document.getElementById('uploaderName').value.trim(),
+                contact: document.getElementById('contactInfo').value.trim()
+            };
+            
+            // 验证表单
+            if (!book.title || !book.author || !book.uploader || !book.contact) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+            
+            // 使用BookManager添加图书
+            if (BookManager.addBook(book)) {
+                showSuccessModal();
+            } else {
+                alert('添加失败，请重试！');
+            }
+        }
+        
+        /**
+         * 显示成功模态框
+         */
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.add('is-active');
+        }
+        
+        /**
+         * 关闭成功模态框
+         */
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('is-active');
+        }
+    </script>
+</body>
+</html>

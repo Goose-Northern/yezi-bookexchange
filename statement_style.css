@@ -1,0 +1,23 @@
+.bok-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.5rem 1.5rem ;  
+}
+.bok-end-one {
+    font-size: 1.2rem;
+    text-align: center;
+}
+.bok-end-two {
+    font-size: 0.8rem;
+    text-align: center;
+}
+.bok-end-three {
+    height: 8rem;
+    /* width: 15rem; */
+    font-size: 0.8rem;
+    text-align: center;
+}
+.bok-end-four {
+    text-align: center;
+}
